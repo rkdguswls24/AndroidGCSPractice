@@ -31,6 +31,7 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
+import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Home;
 import com.o3dr.services.android.lib.drone.property.Speed;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int DEFAULT_UDP_PORT = 14550;
     Handler mainHandler;
     private final Handler handler = new Handler();
-
+    private TextView dronemode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,7 +198,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
                 break;
-
+            case AttributeEvent.BATTERY_UPDATED:
+                updateVolt();
+                break;
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
@@ -207,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void updateVehicleModesForType(int droneType) {
 
         List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
-
 
     }
 
@@ -226,9 +228,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button armButton = (Button) findViewById(R.id.arm);
 
         if (!this.drone.isConnected()) {
-            updateConnectedButton(false);
+            armingbtn.setVisibility(View.INVISIBLE);
         } else {
-            updateConnectedButton(true);
+            armingbtn.setVisibility(View.VISIBLE);
         }
 
         if (vehicleState.isFlying()) {
@@ -247,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onStart() {
         super.onStart();
         this.controlTower.connect((TowerListener) this);
-
+       // updateVehicleModesForType(this.droneType);
     }
     @Override
     public void onStop() {
@@ -278,13 +280,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (this.drone.isConnected()) {
             this.drone.disconnect();
         } else {
-
-            int selectedConnectionType = 1;
-
-            ConnectionParameter connectionParams = selectedConnectionType == ConnectionType.TYPE_USB
-                    ? ConnectionParameter.newUsbConnection(null)
-                    : ConnectionParameter.newUdpConnection(null);
-
+            ConnectionParameter connectionParams = ConnectionParameter.newUdpConnection(null);
             this.drone.connect(connectionParams);
         }
 
@@ -313,6 +309,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
+
+    protected void updateVolt(){
+        TextView voltTextView = (TextView)findViewById(R.id.volt);
+        Battery droneVolt = this.drone.getAttribute(AttributeType.BATTERY);
+
+        Log.d("MYLOG","볼트의 변화 : "+droneVolt.getBatteryVoltage());
+
+        voltTextView.setText(String.format(" "+droneVolt.getBatteryVoltage()+"V"));
+    }
+
 
     protected void updateDistanceFromHome() {
         TextView distanceTextView = (TextView) findViewById(R.id.YAW);
@@ -351,7 +357,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLinkStateUpdated(@NonNull LinkConnectionStatus connectionStatus) {
-
+        switch(connectionStatus.getStatusCode()){
+            case LinkConnectionStatus.FAILED:
+                Bundle extras = connectionStatus.getExtras();
+                String msg = null;
+                if (extras != null) {
+                    msg = extras.getString(LinkConnectionStatus.EXTRA_ERROR_MSG);
+                }
+                alertUser("Connection Failed:" + msg);
+                break;
+        }
     }
 
     @Override
@@ -363,6 +378,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onTowerDisconnected() {
-
+        alertUser("DroneKit-Android Interrupted");
     }
 }
