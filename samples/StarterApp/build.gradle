@@ -5,7 +5,7 @@ android {
     buildToolsVersion android_build_tools_version
 
     defaultConfig {
-        applicationId "com.o3dr.sample.hellodrone"
+        applicationId "com.o3dr.sample.hellodrone1"
         minSdkVersion android_build_min_sdk_version
         targetSdkVersion android_build_target_sdk_version
         versionCode 2

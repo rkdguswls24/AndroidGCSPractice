@@ -115,7 +115,10 @@ allprojects {
     repositories {
         google()
         jcenter()
-
+        maven {
+            url 'https://navercorp.bintray.com/maps'
+        }
+        maven { url 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode' }
         maven {
             url getMavenRepoUrl()
             credentials {
