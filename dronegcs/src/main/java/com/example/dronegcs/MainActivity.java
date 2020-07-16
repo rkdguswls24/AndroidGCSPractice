@@ -1,9 +1,17 @@
 package com.example.dronegcs;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +23,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.overlay.InfoWindow;
+import com.naver.maps.map.overlay.LocationOverlay;
 import com.o3dr.android.client.apis.ControlApi;
 import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.android.client.apis.solo.SoloCameraApi;
@@ -30,7 +41,9 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloAttributes;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.mission.item.command.YawCondition;
 import com.o3dr.services.android.lib.drone.property.Altitude;
+import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Home;
@@ -52,17 +65,29 @@ import com.o3dr.services.android.lib.model.SimpleCommandListener;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, DroneListener, TowerListener, LinkListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, DroneListener, TowerListener, LinkListener,
+        LocationListener {
     private Drone drone;
     private int droneType = Type.TYPE_UNKNOWN;
     private ControlTower controlTower;
     private boolean connectDrone = false;
-    private LinearLayout armingbtn ;
+    private LinearLayout armingbtn;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int DEFAULT_UDP_PORT = 14550;
     Handler mainHandler;
     private final Handler handler = new Handler();
     private TextView dronemode;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+    private NaverMap mymap;
+    @Nullable
+    private LocationManager locationManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,16 +98,82 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.drone = new Drone(context);
 
         FragmentManager fm = getSupportFragmentManager();
-        MapFragment mapFragment = (MapFragment)fm.findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) fm.findFragmentById(R.id.map);
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             fm.beginTransaction().add(R.id.map, mapFragment).commit();
         }
-        if(!connectDrone) {
-            armingbtn = (LinearLayout)findViewById(R.id.connectmenu) ;
+
+
+        if (!connectDrone) {
+            armingbtn = (LinearLayout) findViewById(R.id.connectmenu);
             armingbtn.setVisibility(View.INVISIBLE);
         }
+
         mapFragment.getMapAsync(this);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (hasPermission() && locationManager != null) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 1000, 10, this);
+            }
+            return;
+        }
+
+        super.onRequestPermissionsResult(
+                requestCode, permissions, grantResults);
+    }
+
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (mymap == null || location == null) {
+            return;
+        }
+
+        LatLng coord = new LatLng(location);
+
+        LocationOverlay locationOverlay = mymap.getLocationOverlay();
+        locationOverlay.setVisible(true);
+        locationOverlay.setPosition(coord);
+        locationOverlay.setBearing(location.getBearing());
+
+        mymap.moveCamera(CameraUpdate.scrollTo(coord));
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+    private boolean hasPermission() {
+        return PermissionChecker.checkSelfPermission(this, PERMISSIONS[0])
+                == PermissionChecker.PERMISSION_GRANTED
+                && PermissionChecker.checkSelfPermission(this, PERMISSIONS[1])
+                == PermissionChecker.PERMISSION_GRANTED;
     }
 
     protected void alertUser(String message) {
@@ -169,12 +260,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 break;
-
             case AttributeEvent.STATE_UPDATED:
+
+                break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
                 break;
-
             case AttributeEvent.TYPE_UPDATED:
                 Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
                 if (newDroneType.getDroneType() != this.droneType) {
@@ -182,25 +273,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     updateVehicleModesForType(this.droneType);
                 }
                 break;
-
             case AttributeEvent.STATE_VEHICLE_MODE:
-                updateVehicleMode();
+                //updateVehicleMode();
+                updateState();
                 break;
-
             case AttributeEvent.SPEED_UPDATED:
                 updateSpeed();
                 break;
-
             case AttributeEvent.ALTITUDE_UPDATED:
                 updateAltitude();
                 break;
-
             case AttributeEvent.HOME_UPDATED:
-                updateDistanceFromHome();
                 break;
             case AttributeEvent.BATTERY_UPDATED:
                 updateVolt();
                 break;
+            case AttributeEvent.ATTITUDE_UPDATED:
+                updateYaw();
+                break;
+
+
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
@@ -238,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armButton.setText("armed");
         } else if (vehicleState.isArmed()) {
             // Take off
-            armButton.setText("armed");
+            armButton.setText("TAKE-OFF");
         } else if (vehicleState.isConnected()) {
             // Connected but not Armed
             armButton.setText("ARM");
@@ -250,6 +342,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onStart();
         this.controlTower.connect((TowerListener) this);
        // updateVehicleModesForType(this.droneType);
+        if (hasPermission()) {
+            if (locationManager != null) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 1000, 10, this);
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                    this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+        }
     }
     @Override
     public void onStop() {
@@ -261,6 +372,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         this.controlTower.unregisterDrone(this.drone);
         this.controlTower.disconnect();
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
     }
 
     protected void updateConnectedButton(Boolean isConnected) {
@@ -314,30 +428,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView voltTextView = (TextView)findViewById(R.id.volt);
         Battery droneVolt = this.drone.getAttribute(AttributeType.BATTERY);
 
-        Log.d("MYLOG","볼트의 변화 : "+droneVolt.getBatteryVoltage());
-
         voltTextView.setText(String.format(" "+droneVolt.getBatteryVoltage()+"V"));
     }
+    protected void updateState(){
+        TextView stateTextView = (TextView)findViewById(R.id.flymode);
+        State droneState = this.drone.getAttribute(AttributeType.STATE);
+        stateTextView.setText(String.format(""+droneState.getVehicleMode()));
+    }
+    protected void updateYaw(){
 
+        TextView yawTextView = (TextView)findViewById(R.id.YAW1);
+        Attitude droneyaw = this.drone.getAttribute(AttributeType.ATTITUDE);
+        Log.d("MYLOG","yaw "+droneyaw.getYaw());
 
-    protected void updateDistanceFromHome() {
-        TextView distanceTextView = (TextView) findViewById(R.id.YAW);
-        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        double vehicleAltitude = droneAltitude.getAltitude();
-        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
-        LatLong vehiclePosition = droneGps.getPosition();
+        yawTextView.setText(String.format("%3.1f",droneyaw.getYaw()));
 
-        double distanceFromHome = 0;
-
-        if (droneGps.isValid()) {
-            LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
-            Home droneHome = this.drone.getAttribute(AttributeType.HOME);
-            distanceFromHome = distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
-        } else {
-            distanceFromHome = 0;
-        }
-
-        distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
@@ -380,4 +485,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onTowerDisconnected() {
         alertUser("DroneKit-Android Interrupted");
     }
+
+
 }
