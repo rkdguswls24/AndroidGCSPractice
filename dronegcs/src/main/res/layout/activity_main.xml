@@ -19,11 +19,12 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="21dp"
-        android:orientation="horizontal"
         android:layout_weight="1"
         android:background="#44000000"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.499"
@@ -33,72 +34,99 @@
 
 
         <TextView
-            android:text="전압:"
-            android:layout_marginLeft="30dp"
-            android:textColor="#FFFFFFFF"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:text="전압:"
+            android:textColor="#FFFFFFFF" />
+
         <TextView
             android:id="@+id/volt"
-            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:textColor="#FFFFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:text="비행모드:"
-            android:textColor="#FFFFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:id="@+id/flymode"
             android:text=""
-            android:layout_marginRight="20dp"
-            android:layout_weight="1"
-            android:textColor="#FFFFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:text="고도:"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#FFFFFFFF" />
 
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:text="비행모드:"
+            android:textColor="#FFFFFFFF" />
+
+        <Spinner
+            android:id="@+id/flymode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="20dp"
+            android:layout_weight="1"
+            android:spinnerMode="dropdown"
+            android:text=""
+            android:textColor="#FFFFFFFF" />/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+
+            android:text="고도:"
+            android:textColor="#FFFFFFFF" />
+
         <TextView
             android:id="@+id/altitude"
-            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:textColor="#FFFFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:text=""
+            android:textColor="#FFFFFFFF" />
+
         <TextView
-            android:text="속도:"
-            android:textColor="#FFFFFFFF"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:text="속도:"
+            android:textColor="#FFFFFFFF" />
+
         <TextView
             android:id="@+id/speed"
-            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:textColor="#FFFFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:text=""
+            android:textColor="#FFFFFFFF" />
+
         <TextView
-            android:text="YAW:"
-            android:textColor="#FFFFFFFF"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:text="YAW:"
+            android:textColor="#FFFFFFFF" />
+
         <TextView
             android:id="@+id/YAW1"
-            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:textColor="#FFFFFFFF"
+            android:text=""
+            android:textColor="#FFFFFFFF" />
+
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:text="위성수:"
+            android:textColor="#FFFFFFFF" />
+
+        <TextView
+            android:id="@+id/satenum"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="0dp"
+            android:layout_weight="1"
+            android:text="0"
+            android:textColor="#FFFFFFFF" />
     </LinearLayout>
 
     <Button
@@ -145,6 +173,55 @@
             android:layout_height="41dp"
             android:onClick="btn_event"
             android:text="arm"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.088">
+        <Button
+            android:id="@+id/autotakeoff"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="이륙고도5.5"
+            android:textSize="4.5pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+        <Button
+            android:id="@+id/drone_asec"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="+0.5m"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+        <Button
+            android:id="@+id/drone_desc"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="-0.5m"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/map"
             app:layout_constraintHorizontal_bias="0.0"
