@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import android.graphics.PointF;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -76,7 +77,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int droneType = Type.TYPE_UNKNOWN;
     private ControlTower controlTower;
     private boolean connectDrone = false;
+    private boolean armstatus = false;
     private LinearLayout armingbtn;
+    private LinearLayout takeoffmenu;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int DEFAULT_UDP_PORT = 14550;
     Handler mainHandler;
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
     private Spinner modeSelector;
-
+    private LocationOverlay locationOverlay;
 
     @Nullable
     private LocationManager locationManager;
@@ -133,7 +136,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armingbtn = (LinearLayout) findViewById(R.id.connectmenu);
             armingbtn.setVisibility(View.INVISIBLE);
         }
-
+        if(!armstatus){
+            takeoffmenu = (LinearLayout)findViewById(R.id.takeofflist);
+            takeoffmenu.setVisibility(View.INVISIBLE);
+        }
         mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     }
@@ -158,7 +164,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
     }
+    public void onTakeOffTap(){
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        if (vehicleState.isArmed()) {
+            // Take off
+            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
 
+                @Override
+                public void onSuccess() {
+                    alertUser("Taking off...");
+                }
+
+                @Override
+                public void onError(int i) {
+                    alertUser("Unable to take off.");
+                }
+
+                @Override
+                public void onTimeout() {
+                    alertUser("Unable to take off.");
+                }
+            });
+        }
+    }
     public void onArmButtonTap() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
@@ -177,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         } else if (vehicleState.isArmed()) {
             // Take off
+
             ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
 
                 @Override
@@ -298,23 +327,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     protected void updatetrack(){
-
-
         try{
+
             Gps dronegps = this.drone.getAttribute(AttributeType.GPS);
             LatLng droneposition = new LatLng(dronegps.getPosition().getLatitude(),dronegps.getPosition().getLongitude());
-            LatLong dronepos = new LatLong(dronegps.getPosition());
-
-            LocationOverlay locationOverlay = mymap.getLocationOverlay();
-            locationOverlay.setVisible(true);
 
             Log.d("GPSERROR1",""+droneposition.latitude);
-
+            this.locationOverlay = mymap.getLocationOverlay();
+            locationOverlay.setVisible(true);
+            locationOverlay.setIcon(OverlayImage.fromResource(R.drawable.gcsmarker));
             locationOverlay.setPosition(droneposition);
-            locationOverlay.setBearing(90);
+
             mymap.moveCamera(CameraUpdate.scrollTo(droneposition));
         }catch(NullPointerException e){
             Log.d("GPSERROR","GPS POSITION NULL");
+           // locationOverlay = mymap.getLocationOverlay();
+            this.locationOverlay = mymap.getLocationOverlay();
+            locationOverlay.setVisible(true);
+            locationOverlay.setIcon(OverlayImage.fromResource(R.drawable.gcsmarker));
+            locationOverlay.setPosition(new LatLng(35.945378,126.682110));
+            //locationOverlay.setAnchor(new PointF((float)0.5,(float)0.5));
+            mymap.moveCamera(CameraUpdate.scrollTo(new LatLng(35.945378,126.682110)));
         }
         //
         //mymap.setLocationTrackingMode(LocationTrackingMode.Follow);
@@ -344,7 +377,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDroneServiceInterrupted(String errorMsg) {
 
     }
+    protected void updateTakeOffDrawer(){
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        takeoffmenu = (LinearLayout)findViewById(R.id.takeofflist);
+        if(vehicleState.isArmed())
+        {
+            armstatus = true;
+            takeoffmenu.setVisibility(View.VISIBLE);
+        }
+        else{
+            armstatus = false;
+            takeoffmenu.setVisibility(View.INVISIBLE);
+        }
 
+    }
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.arm);
@@ -360,7 +406,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armButton.setText("armed");
         } else if (vehicleState.isArmed()) {
             // Take off
+
             armButton.setText("TAKE-OFF");
+
         } else if (vehicleState.isConnected()) {
             // Connected but not Armed
             armButton.setText("ARM");
@@ -418,6 +466,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.land:
                 break;
+            case R.id.autotakeoff:
+                break;
+            case R.id.drone_asec:
+                break;
+            case R.id.drone_desc:
+                break;
+
+
 
         }
     }
@@ -425,6 +481,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView altitudeTextView = (TextView) findViewById(R.id.altitude);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
+
+
+
     }
 
     protected void updateSpeed() {
@@ -447,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         yawTextView.setText(String.format("%3.1f",droneyaw.getYaw()));
-
+        locationOverlay.setBearing((float) droneyaw.getYaw());
     }
 
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
@@ -463,6 +522,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.mymap = naverMap;
+
     }
 
     @Override
