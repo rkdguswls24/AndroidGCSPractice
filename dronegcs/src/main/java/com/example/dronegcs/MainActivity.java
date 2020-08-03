@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ControlTower controlTower;
     private boolean connectDrone = false;
     private boolean armstatus = false;
+    private boolean altitudeset = false;
     private LinearLayout armingbtn;
     private LinearLayout takeoffmenu;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         }
     }
-    public void onArmButtonTap() {
+    public void onLandButtonTap(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
         if (vehicleState.isFlying()) {
@@ -203,10 +204,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     alertUser("Unable to land the vehicle.");
                 }
             });
-        } else if (vehicleState.isArmed()) {
+        }
+    }
+
+    public void takeoffsetTap(){
+        LinearLayout setlist = (LinearLayout)findViewById(R.id.takeoffsetlist);
+        altitudeset = !altitudeset;
+        if(altitudeset)
+        {
+            setlist.setVisibility(View.VISIBLE);
+        }
+        else
+            setlist.setVisibility(View.INVISIBLE);
+    }
+    public void onAsecTap(){
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+        if(vehicleState.isArmed()){
+            ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()+0.5);
+        }
+    }
+    public void onDescTap(){
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+        if(vehicleState.isArmed()){
+            if(currentAltitude.getAltitude()>0)
+                ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()-0.5);
+        }
+    }
+    public void onArmButtonTap() {
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+
+         if (vehicleState.isArmed()) {
             // Take off
 
-            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
+            ControlApi.getApi(this.drone).takeoff(5.5, new AbstractCommandListener() {
 
                 @Override
                 public void onSuccess() {
@@ -277,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 alertUser("Drone Connected");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
+                updateTakeOffDrawer();
                 checkSoloState();
                 break;
 
@@ -284,12 +317,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 alertUser("Drone Disconnected");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
+                updateTakeOffDrawer();
                 break;
             case AttributeEvent.STATE_UPDATED:
-
+                updateTakeOffDrawer();
                 break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
+                updateTakeOffDrawer();
                 break;
             case AttributeEvent.TYPE_UPDATED:
                 Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
@@ -401,10 +436,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armingbtn.setVisibility(View.VISIBLE);
         }
 
-        if (vehicleState.isFlying()) {
-            // Land
-            armButton.setText("armed");
-        } else if (vehicleState.isArmed()) {
+
+        if (vehicleState.isArmed()) {
             // Take off
 
             armButton.setText("TAKE-OFF");
@@ -465,12 +498,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 onArmButtonTap();
                 break;
             case R.id.land:
+                onLandButtonTap();
                 break;
-            case R.id.autotakeoff:
+            case R.id.takeoffset:
+                takeoffsetTap();
                 break;
             case R.id.drone_asec:
+                onAsecTap();
                 break;
             case R.id.drone_desc:
+                onDescTap();
                 break;
 
 
@@ -478,10 +515,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     protected void updateAltitude() {
+        Button takeoffDisplay = (Button)findViewById(R.id.takeoffset);
         TextView altitudeTextView = (TextView) findViewById(R.id.altitude);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
-
+        takeoffDisplay.setText(String.format("고도: %3.1f", droneAltitude.getAltitude())+"m");
 
 
     }
@@ -495,17 +533,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void updateVolt(){
         TextView voltTextView = (TextView)findViewById(R.id.volt);
         Battery droneVolt = this.drone.getAttribute(AttributeType.BATTERY);
-
-        voltTextView.setText(String.format(" "+droneVolt.getBatteryVoltage()+"V"));
+        voltTextView.setText(String.format("%3.2f",droneVolt.getBatteryVoltage())+"V");
     }
 
     protected void updateYaw(){
-
+        double yawvalue=0;
         TextView yawTextView = (TextView)findViewById(R.id.YAW1);
         Attitude droneyaw = this.drone.getAttribute(AttributeType.ATTITUDE);
-
-
-        yawTextView.setText(String.format("%3.1f",droneyaw.getYaw()));
+        if(droneyaw.getYaw()<0)
+            yawvalue = droneyaw.getYaw()+360;
+        else
+            yawvalue = droneyaw.getYaw();
+        
+        yawTextView.setText(String.format("%3.1f",yawvalue));
         locationOverlay.setBearing((float) droneyaw.getYaw());
     }
 
