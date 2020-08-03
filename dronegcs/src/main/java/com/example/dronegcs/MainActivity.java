@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean armstatus = false;
     private boolean altitudeset = false;
     private LinearLayout armingbtn;
-    private LinearLayout takeoffmenu;
+    private LinearLayout setlist;
+    private Button takeoffmenu;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int DEFAULT_UDP_PORT = 14550;
     Handler mainHandler;
@@ -137,9 +138,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armingbtn = (LinearLayout) findViewById(R.id.connectmenu);
             armingbtn.setVisibility(View.INVISIBLE);
         }
-        if(!armstatus){
-            takeoffmenu = (LinearLayout)findViewById(R.id.takeofflist);
+        if(armstatus==false){
+            takeoffmenu = (Button)findViewById(R.id.takeoffset);
             takeoffmenu.setVisibility(View.INVISIBLE);
+            setlist= (LinearLayout)findViewById(R.id.takeoffsetlist);
+            setlist.setVisibility(View.INVISIBLE);
         }
         mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -208,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void takeoffsetTap(){
-        LinearLayout setlist = (LinearLayout)findViewById(R.id.takeoffsetlist);
+
         altitudeset = !altitudeset;
         if(altitudeset)
         {
@@ -220,14 +223,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onAsecTap(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        if(vehicleState.isArmed()){
+        if(vehicleState.isFlying()){
             ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()+0.5);
         }
     }
     public void onDescTap(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        if(vehicleState.isArmed()){
+        if(vehicleState.isFlying()){
             if(currentAltitude.getAltitude()>0)
                 ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()-0.5);
         }
@@ -414,15 +417,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     protected void updateTakeOffDrawer(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        takeoffmenu = (LinearLayout)findViewById(R.id.takeofflist);
-        if(vehicleState.isArmed())
+
+        if(vehicleState.isFlying())
         {
             armstatus = true;
             takeoffmenu.setVisibility(View.VISIBLE);
+
         }
         else{
             armstatus = false;
             takeoffmenu.setVisibility(View.INVISIBLE);
+
         }
 
     }
