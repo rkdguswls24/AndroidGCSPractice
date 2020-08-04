@@ -2,6 +2,7 @@ package com.example.dronegcs;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 
 import android.graphics.PointF;
@@ -13,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.PermissionChecker;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -235,13 +237,81 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()-0.5);
         }
     }
+    public void alertMessage(){
+        Drone mydrone = this.drone;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("arming alert");
+        builder.setMessage("모터를 가동합니다");
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int id)
+            {
+                VehicleApi.getApi(mydrone).arm(true, false, new SimpleCommandListener() {
+                    @Override
+                    public void onError(int executionError) {
+                        alertUser("Unable to arm vehicle.");
+                    }
+
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Arming operation timed out.");
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+    public void takeoffAlert(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        Drone mydrone = this.drone;
+        builder.setTitle("takeoff alert");
+        builder.setMessage("기체가 상승합니다 안전거리 유지 바랍니다.");
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ControlApi.getApi(mydrone).takeoff(5.5,new AbstractCommandListener(){
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Taking off...");
+                    }
+
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Unable to take off.");
+                    }
+
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Unable to take off.");
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+
+            }
+        });
+
+        AlertDialog alertdialog = builder.create();
+        alertdialog.show();
+    }
     public void onArmButtonTap() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
          if (vehicleState.isArmed()) {
             // Take off
-
-            ControlApi.getApi(this.drone).takeoff(5.5, new AbstractCommandListener() {
+            takeoffAlert();
+            /*ControlApi.getApi(this.drone).takeoff(5.5, new AbstractCommandListener() {
 
                 @Override
                 public void onSuccess() {
@@ -257,13 +327,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onTimeout() {
                     alertUser("Unable to take off.");
                 }
-            });
+            });*/
         } else if (!vehicleState.isConnected()) {
             // Connect
             alertUser("Connect to a drone first");
         } else {
+             alertMessage();
             // Connected but not Armed
-            VehicleApi.getApi(this.drone).arm(true, false, new SimpleCommandListener() {
+           /* VehicleApi.getApi(this.drone).arm(true, false, new SimpleCommandListener() {
                 @Override
                 public void onError(int executionError) {
                     alertUser("Unable to arm vehicle.");
@@ -273,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onTimeout() {
                     alertUser("Arming operation timed out.");
                 }
-            });
+            });*/
         }
     }
 
