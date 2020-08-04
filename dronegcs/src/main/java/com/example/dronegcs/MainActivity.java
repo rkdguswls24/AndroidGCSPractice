@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationSource;
 import com.naver.maps.map.LocationTrackingMode;
@@ -170,29 +171,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
     }
-    public void onTakeOffTap(){
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        if (vehicleState.isArmed()) {
-            // Take off
-            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
 
-                @Override
-                public void onSuccess() {
-                    alertUser("Taking off...");
-                }
-
-                @Override
-                public void onError(int i) {
-                    alertUser("Unable to take off.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Unable to take off.");
-                }
-            });
-        }
-    }
     public void onLandButtonTap(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
@@ -457,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             locationOverlay.setPosition(new LatLng(35.945378,126.682110));
             //locationOverlay.setAnchor(new PointF((float)0.5,(float)0.5));
             mymap.moveCamera(CameraUpdate.scrollTo(new LatLng(35.945378,126.682110)));
+
         }
         //
         //mymap.setLocationTrackingMode(LocationTrackingMode.Follow);
