@@ -133,8 +133,8 @@
         android:id="@+id/connect"
         android:layout_width="75dp"
         android:layout_height="41dp"
-        android:text="conn"
         android:onClick="btn_event"
+        android:text="conn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/map"
         app:layout_constraintHorizontal_bias="0.0"
@@ -143,10 +143,10 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <LinearLayout
+        android:id="@+id/connectmenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/connectmenu"
         app:layout_constraintBottom_toTopOf="@+id/connect"
         app:layout_constraintEnd_toEndOf="@+id/connect"
         app:layout_constraintHorizontal_bias="0.0"
@@ -235,6 +235,139 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="240dp"
+        android:layout_height="61dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.966"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.98">
+
+        <Button
+            android:id="@+id/maplockbtn"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:onClick="btn_event"
+            android:text="맵 잠금" />
+
+        <Button
+            android:id="@+id/mapoptionbtn"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:onClick="btn_event"
+            android:text="지도옵션" />
+
+        <Button
+            android:id="@+id/mapcadastral"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:onClick="btn_event"
+            android:text="지적도"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/maplocklayer"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintStart_toStartOf="@+id/linearLayout3">
+
+        <Button
+            android:id="@+id/maplock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="맵 잠금" />
+
+        <Button
+            android:id="@+id/mapmove"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="맵 이동" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mapoptionlayer"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintStart_toEndOf="@+id/maplocklayer">
+
+        <Button
+            android:id="@+id/basicmap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="기본지도" />
+
+        <Button
+            android:id="@+id/satellitemap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="위성지도" />
+
+        <Button
+            android:id="@+id/hybridmap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="hybrid" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mapcadstrallayer"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.975"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <Button
+            android:id="@+id/cadaston"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="지적도On"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/cadastoff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_event"
+            android:text="지적도off"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/toggle"
+        android:layout_width="51dp"
+        android:layout_height="38dp"
+        android:onClick="btn_event"
+        android:text="opt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.024"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.088" />
 
 
 </android.support.constraint.ConstraintLayout>
