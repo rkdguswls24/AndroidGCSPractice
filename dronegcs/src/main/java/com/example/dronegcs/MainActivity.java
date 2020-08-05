@@ -599,11 +599,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void onToggleTap(){
         togglebtn = !togglebtn;
+        LinearLayout list1 = (LinearLayout)findViewById(R.id.maplocklayer);
+        LinearLayout list2 = (LinearLayout)findViewById(R.id.mapoptionlayer);
+        LinearLayout list3 = (LinearLayout)findViewById(R.id.mapcadstrallayer);
         if(togglebtn){
             btnset.setVisibility(View.VISIBLE);
         }
-        else
+        else{
+            maplock = false;
+            mapoption = false;
+            mapcads = false;
+            list1.setVisibility(View.INVISIBLE);
+            list2.setVisibility(View.INVISIBLE);
+            list3.setVisibility(View.INVISIBLE);
             btnset.setVisibility(View.INVISIBLE);
+        }
+
     }
     public void onCadastTap(int id){
         Button cadastbtn = (Button)findViewById(R.id.mapcadastral);
