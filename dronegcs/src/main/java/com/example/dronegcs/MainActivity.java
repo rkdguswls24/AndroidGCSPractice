@@ -91,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LinearLayout armingbtn;
     private LinearLayout setlist;
     private Button takeoffmenu;
+    private double dronealtitude=5.5;
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private Button takeoffsetbtn;
     private final Handler handler = new Handler();
     private FusedLocationSource locationSource;
     private NaverMap mymap;
@@ -147,11 +148,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armingbtn.setVisibility(View.INVISIBLE);
         }
         if(armstatus==false){
-            takeoffmenu = (Button)findViewById(R.id.takeoffset);
-            takeoffmenu.setVisibility(View.INVISIBLE);
+
             setlist= (LinearLayout)findViewById(R.id.takeoffsetlist);
             setlist.setVisibility(View.INVISIBLE);
         }
+        takeoffsetbtn = (Button)findViewById(R.id.takeoffset);
+        takeoffsetbtn.setText("고도"+dronealtitude);
         LinearLayout list1 = (LinearLayout)findViewById(R.id.maplocklayer);
         LinearLayout list2 = (LinearLayout)findViewById(R.id.mapoptionlayer);
         LinearLayout list3 = (LinearLayout)findViewById(R.id.mapcadstrallayer);
@@ -215,19 +217,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             setlist.setVisibility(View.INVISIBLE);
     }
     public void onAsecTap(){
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+       /* State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         if(vehicleState.isFlying()){
-            ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()+0.5);
-        }
+            dronealtitude += 0.5;
+            takeoffsetbtn.setText("고도"+dronealtitude);
+            ControlApi.getApi(this.drone).climbTo(dronealtitude);
+        }*/
+       if(dronealtitude<10){
+           dronealtitude += 0.5;
+           takeoffsetbtn.setText("고도"+dronealtitude);
+       }
     }
     public void onDescTap(){
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        /*State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Altitude currentAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         if(vehicleState.isFlying()){
             if(currentAltitude.getAltitude()>0)
-                ControlApi.getApi(this.drone).climbTo(currentAltitude.getAltitude()-0.5);
+            {
+                dronealtitude -= 0.5;
+                takeoffsetbtn.setText("고도"+dronealtitude);
+                ControlApi.getApi(this.drone).climbTo(dronealtitude);
+            }
+        }*/
+        if(dronealtitude>3){
+            dronealtitude -= 0.5;
+            takeoffsetbtn.setText("고도"+dronealtitude);
         }
+
     }
     public void alertMessage(){
         Drone mydrone = this.drone;
@@ -268,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ControlApi.getApi(mydrone).takeoff(5.5,new AbstractCommandListener(){
+                ControlApi.getApi(mydrone).takeoff(dronealtitude,new AbstractCommandListener(){
                     @Override
                     public void onSuccess() {
                         alertUser("Taking off...");
@@ -349,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 alertUser("Drone Connected");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
-                updateTakeOffDrawer();
+
                 checkSoloState();
                 break;
 
@@ -357,14 +374,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 alertUser("Drone Disconnected");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
-                updateTakeOffDrawer();
+
                 break;
             case AttributeEvent.STATE_UPDATED:
-                updateTakeOffDrawer();
+
                 break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
-                updateTakeOffDrawer();
+
                 break;
             case AttributeEvent.TYPE_UPDATED:
                 Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
@@ -454,22 +471,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDroneServiceInterrupted(String errorMsg) {
 
     }
-    protected void updateTakeOffDrawer(){
+   /* protected void updateTakeOffDrawer(){
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
-        if(vehicleState.isFlying())
+        if(vehicleState.isArmed())
         {
             armstatus = true;
-            takeoffmenu.setVisibility(View.VISIBLE);
+            takeoffsetbtn.setVisibility(View.VISIBLE);
 
         }
         else{
             armstatus = false;
-            takeoffmenu.setVisibility(View.INVISIBLE);
+            takeoffsetbtn.setVisibility(View.INVISIBLE);
 
         }
 
-    }
+    }*/
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.arm);
@@ -680,11 +697,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     protected void updateAltitude() {
-        Button takeoffDisplay = (Button)findViewById(R.id.takeoffset);
+
         TextView altitudeTextView = (TextView) findViewById(R.id.altitude);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
-        takeoffDisplay.setText(String.format("고도: %3.1f", droneAltitude.getAltitude())+"m");
+
 
 
     }
