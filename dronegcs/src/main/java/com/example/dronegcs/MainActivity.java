@@ -81,6 +81,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, DroneListener, TowerListener, LinkListener{
+    private boolean dronestate = false;
     private Drone drone;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private int droneType = Type.TYPE_UNKNOWN;
@@ -205,23 +206,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.mymap = naverMap;
-
+        mymap.setOnMapLongClickListener((pointF, latLng) -> {
+            droneguide(latLng);
+        });
     }
 
 //guidemode
+    public boolean mydronestate(){
+        State vehiclestate = this.drone.getAttribute(AttributeType.STATE);
+        if(vehiclestate.isFlying())
+            return true;
+        else
+            return false;
+    }
 
-    public void droneguide(){
-        Drone mydrone = this.drone;
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        mymap.setOnMapLongClickListener((pointF, latLng) -> {
-            if(vehicleState.isFlying()){
-                guide.mGuidedPoint = latLng;
-                guide.mMarkerGuide.setPosition(latLng);
-                guide.mMarkerGuide.setMap(mymap);
-                guide.DialogSimple(mydrone,new LatLong(latLng.latitude,latLng.longitude));
-            }
+    public void droneguide(LatLng latLng){
 
-        });
+        if(dronestate){
+            guide.mGuidedPoint = latLng;
+            guide.mMarkerGuide.setPosition(latLng);
+            guide.mMarkerGuide.setMap(mymap);
+            guide.DialogSimple(this.drone,new LatLong(latLng.latitude,latLng.longitude));
+        }
 
 
 
@@ -461,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
-                droneguide();
+                dronestate = mydronestate();
                 break;
             case AttributeEvent.TYPE_UPDATED:
                 Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
