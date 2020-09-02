@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
@@ -199,15 +199,15 @@
 
     <LinearLayout
         android:id="@+id/takeoffsetlist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="85dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintEnd_toEndOf="@id/takeoffset"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.252">
+        app:layout_constraintTop_toBottomOf="@+id/takeoffset"
+        app:layout_constraintVertical_bias="0.015">
 
         <Button
             android:id="@+id/drone_asec"
@@ -376,6 +376,159 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.102" />
+
+    <Button
+        android:id="@+id/mission"
+        android:layout_width="60dp"
+        android:layout_height="41dp"
+        android:text="임무"
+        android:textSize="4pt"
+        android:onClick="btn_event"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/takeoffset"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.086" />
+
+    <LinearLayout
+        android:id="@+id/missiondrawer"
+        android:layout_width="60dp"
+        android:layout_height="169dp"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/takeoffsetlist"
+        app:layout_constraintStart_toStartOf="@+id/mission"
+        app:layout_constraintTop_toBottomOf="@+id/mission">
+
+        <Button
+            android:id="@+id/nomission"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:text="none"
+            android:onClick="btn_event"
+            android:textSize="4pt" />
+
+        <Button
+            android:id="@+id/PolygonMission"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:text="다각형"
+            android:onClick="btn_event"
+            android:textSize="4pt" />
+        <Button
+            android:id="@+id/ABMission"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:text="AB"
+            android:onClick="btn_event"
+            android:textSize="4pt" />
+        <Button
+            android:id="@+id/customMission"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:text="Cust"
+            android:onClick="btn_event"
+            android:textSize="4pt" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/spraygap"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:text="비행폭 5.5m"
+        android:textSize="4pt"
+        app:layout_constraintEnd_toStartOf="@+id/mission"
+        app:layout_constraintTop_toTopOf="@+id/mission" />
+
+    <LinearLayout
+        android:id="@+id/spraysetlist"
+        android:layout_width="60dp"
+        android:layout_height="85dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@+id/abdistancesetlist"
+        app:layout_constraintTop_toBottomOf="@+id/spraygap">
+
+        <Button
+            android:id="@+id/sprayinc"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="+0.5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/spraydec"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="-0.5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/abdistance"
+        android:layout_width="60dp"
+        android:layout_height="41dp"
+        android:text="AB거리 50m"
+        android:textSize="4pt"
+        app:layout_constraintEnd_toStartOf="@+id/spraygap"
+        app:layout_constraintTop_toTopOf="@+id/spraygap" />
+
+    <LinearLayout
+        android:id="@+id/abdistancesetlist"
+        android:layout_width="60dp"
+        android:layout_height="85dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@+id/abdistance"
+        app:layout_constraintTop_toBottomOf="@+id/abdistance">
+
+        <Button
+            android:id="@+id/abinc"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="+10"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/abdec"
+            android:layout_width="60dp"
+            android:layout_height="41dp"
+            android:onClick="btn_event"
+            android:text="-10"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sendmission"
+        android:layout_width="75dp"
+        android:layout_height="41dp"
+        android:onClick="btn_event"
+        android:text="임무전송"
+        android:textSize="5pt"
+        app:layout_constraintBottom_toTopOf="@+id/connectmenu"
+        app:layout_constraintEnd_toEndOf="@+id/connectmenu" />
 
 
 </android.support.constraint.ConstraintLayout>
