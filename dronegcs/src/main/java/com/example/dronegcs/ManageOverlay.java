@@ -48,11 +48,13 @@ public class ManageOverlay {
 
     public void drawCustomPath(){
         if(ppointlist.size()>1){
+
             pathline.setCoords(ppointlist);
             pathline.setColor(Color.GREEN);
             pathline.setMap(mymap);
             for(int i=0;i<ppointlist.size();i++){
                 markerlist.get(i).setTag(String.format(""+(i+1)));
+
                 InfoWindow infoWindow = new InfoWindow();
                 infoWindow.setAdapter((new InfoWindow.DefaultTextAdapter(mainactivity) {
                     @NonNull
@@ -132,7 +134,7 @@ public class ManageOverlay {
         polygon.setMap(null);
         ppointlist.clear();
         spraypointlist.clear();
-
+        markerlist.clear();
 
     }
     public ArrayList<LatLng> getspraylist(){

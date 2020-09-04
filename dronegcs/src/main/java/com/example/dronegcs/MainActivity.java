@@ -388,8 +388,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //manageoverlay
     public void customMission(LatLong latLong){
         if(mission[2]==true){
-            mission[0] = false;
-            mission[1] =false;
+
             polygonPointList.add(latLong);
             manageOverlays.setPPosition(latLong);
             manageOverlays.drawCustomPath();
@@ -398,8 +397,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void polygonMission(LatLong latLong){
         if(mission[1]==true){
-            mission[0] = false;
-            mission[2] = false;
+
             addPolygonPoint(latLong);
         }
     }
@@ -411,8 +409,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             polygonPointList.add(latLong);
 
             manageOverlays.setPPosition(latLong);
-            mission[2] = false;
-            mission[1] = false;
+
             if (polygonPointList.size() == 2) {
                 angle1 = MathUtils.getHeadingFromCoordinates(polygonPointList.get(0), polygonPointList.get(1));
                 LatLong newPoint = MathUtils.newCoordFromBearingAndDistance(polygonPointList.get(1), angle1 - (90 * direction), 100);
@@ -578,6 +575,7 @@ public void addPolygonPoint(LatLong latLong) {
     }
     public void resetMarker(){
         manageOverlays.reset();
+
     }
 //guidemode
     public boolean mydronestate(){
@@ -1130,18 +1128,30 @@ public void addPolygonPoint(LatLong latLong) {
                 break;
             case R.id.PolygonMission:
                 mission[1] = true;
+                mission[2] = false;
+                mission[0] = false;
+                resetMarker();
+                polygonPointList.clear();
                 misBtn = (Button)findViewById(R.id.mission);
                 misBtn.setText("다각형");
                 missiondrawlist.setVisibility(View.INVISIBLE);
                 break;
             case R.id.ABMission:
                 mission[0] = true;
+                mission[2] = false;
+                mission[1] = false;
+                resetMarker();
+                polygonPointList.clear();
                 misBtn = (Button)findViewById(R.id.mission);
                 misBtn.setText("AB");
                 missiondrawlist.setVisibility(View.INVISIBLE);
                 break;
             case R.id.customMission:
                 mission[2] = true;
+                mission[1] = false;
+                mission[0] = false;
+                resetMarker();
+                polygonPointList.clear();
                 misBtn = (Button)findViewById(R.id.mission);
                 misBtn.setText("Cust");
                 missiondrawlist.setVisibility(View.INVISIBLE);
@@ -1158,6 +1168,9 @@ public void addPolygonPoint(LatLong latLong) {
                 break;
             case R.id.spraydec:
                 onDecBtnTap(R.id.spraydec);
+                break;
+            case R.id.sendmission:
+
                 break;
         }
     }
